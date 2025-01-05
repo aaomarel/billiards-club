@@ -6,16 +6,6 @@
     "build": "cd backend && npm run build",
     "start": "cd backend && npm start"
   },
-  "devDependencies": {
-    "@types/node": "^20.10.6",
-    "nodemon": "^3.0.2",
-    "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "@types/jsonwebtoken": "^9.0.5",
-    "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.3.0"
-  },
   "engines": {
     "node": "18.x",
     "npm": "9.x"
