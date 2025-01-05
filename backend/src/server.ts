@@ -50,7 +50,7 @@ const cleanupExpiredMatches = async () => {
 };
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://billiards-admin:zm1WKueRgGAwgsJu@cluster0.szqpc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://billiards-admin:YODYNFOvAXeuLjFu@cluster0.szqpc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 if (!MONGODB_URI) {
   console.error('MONGODB_URI is not defined in environment variables');
