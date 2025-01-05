@@ -3,42 +3,35 @@ import {
   Paper, 
   TextField, 
   Button, 
-  Typography, 
-  Box,
-  Select,
-  MenuItem,
+  Typography,
   FormControl,
   InputLabel,
-  Alert,
-  SelectChangeEvent
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Switch,
+  SelectChangeEvent,
+  Box
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { matches } from '../api';
 
 interface MatchFormData {
   type: '1v1' | '2v2';
   datetime: string;
   location: string;
-  isRanked: string;
+  isRanked: boolean;
 }
 
 const MatchCreationForm: React.FC = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState<MatchFormData>({
     type: '1v1',
     datetime: '',
     location: '',
-    isRanked: 'false'
+    isRanked: true
   });
 
-  const handleSelectChange = (e: SelectChangeEvent) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,65 +41,68 @@ const MatchCreationForm: React.FC = () => {
     }));
   };
 
+  const handleSelectChange = (e: SelectChangeEvent) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSwitchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      isRanked: checked
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Please log in first');
-      }
-
-      const response = await fetch('http://localhost:5002/api/matches', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          isRanked: formData.isRanked === 'true'
-        }),
+      await matches.create(formData);
+      setSuccess('Match created successfully!');
+      setFormData({
+        type: '1v1',
+        datetime: '',
+        location: '',
+        isRanked: true
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to create match');
-      }
-
-      const data = await response.json();
-      console.log('Match created:', data);
-      navigate('/');
-    } catch (err: any) {
-      console.error('Error:', err);
-      setError(err.message || 'An error occurred');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      setError('Failed to create match. Please try again.');
+      console.error('Error creating match:', err);
     }
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: 'auto', mt: 4 }}>
+    <Paper elevation={3} style={{ padding: '20px', maxWidth: '500px', margin: '20px auto' }}>
       <Typography variant="h5" gutterBottom>
-        Create New Match
+        Create a Match
       </Typography>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Typography color="error" gutterBottom>
           {error}
-        </Alert>
+        </Typography>
       )}
 
-      <Box component="form" onSubmit={handleSubmit}>
+      {success && (
+        <Typography color="primary" gutterBottom>
+          {success}
+        </Typography>
+      )}
+
+      <form onSubmit={handleSubmit}>
         <FormControl fullWidth margin="normal">
-          <InputLabel>Match Type</InputLabel>
+          <InputLabel>Type</InputLabel>
           <Select
             name="type"
             value={formData.type}
-            label="Match Type"
             onChange={handleSelectChange}
+            required
           >
             <MenuItem value="1v1">1v1</MenuItem>
             <MenuItem value="2v2">2v2</MenuItem>
@@ -132,41 +128,39 @@ const MatchCreationForm: React.FC = () => {
           <Select
             name="location"
             value={formData.location}
-            label="Location"
             onChange={handleSelectChange}
             required
           >
-            <MenuItem value="Student Center - Table 1">Student Center - Table 1</MenuItem>
-            <MenuItem value="Student Center - Table 2">Student Center - Table 2</MenuItem>
-            <MenuItem value="Recreation Center - Table 1">Recreation Center - Table 1</MenuItem>
-            <MenuItem value="Recreation Center - Table 2">Recreation Center - Table 2</MenuItem>
+            <MenuItem value="Table 1">Table 1</MenuItem>
+            <MenuItem value="Table 2">Table 2</MenuItem>
+            <MenuItem value="Table 3">Table 3</MenuItem>
           </Select>
         </FormControl>
 
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Match Type</InputLabel>
-          <Select
-            name="isRanked"
-            value={formData.isRanked}
-            label="Match Type"
-            onChange={handleSelectChange}
-          >
-            <MenuItem value="false">Casual Match</MenuItem>
-            <MenuItem value="true">Ranked Match</MenuItem>
-          </Select>
-        </FormControl>
+        <Box mt={2}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.isRanked}
+                onChange={handleSwitchChange}
+                name="isRanked"
+                color="primary"
+              />
+            }
+            label="Ranked Match"
+          />
+        </Box>
 
-        <Button 
+        <Button
           type="submit"
           variant="contained"
+          color="primary"
           fullWidth
-          size="large"
-          sx={{ mt: 3 }}
-          disabled={loading}
+          style={{ marginTop: '20px' }}
         >
-          {loading ? 'Creating Match...' : 'Create Match'}
+          Create Match
         </Button>
-      </Box>
+      </form>
     </Paper>
   );
 };

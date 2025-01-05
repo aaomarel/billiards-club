@@ -1,10 +1,9 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5002/api'; // Updated port to match backend
+import { API_ENDPOINT } from './config';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_ENDPOINT,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -20,49 +19,54 @@ api.interceptors.request.use((config) => {
 });
 
 export const auth = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
-  
-  register: (userData: { name: string; email: string; password: string; studentId: string }) =>
-    api.post('/auth/register', userData),
+  login(email: string, password: string) {
+    return api.post('/auth/login', { email, password });
+  },
+  register(userData: { name: string; email: string; password: string; studentId: string }) {
+    return api.post('/auth/register', userData);
+  },
 };
 
 export const matches = {
-  getAll: () => 
-    api.get('/matches'),
-  
-  create: (matchData: {
+  getAll() {
+    return api.get('/matches');
+  },
+  create(matchData: {
     type: '1v1' | '2v2';
     datetime: string;
     location: string;
     isRanked: boolean;
-  }) => api.post('/matches', matchData),
-  
-  join: (matchId: string) =>
-    api.post(`/matches/${matchId}/join`),
-  
-  leave: (matchId: string) =>
-    api.post(`/matches/${matchId}/leave`),
-    
-  cancel: (matchId: string) =>
-    api.post(`/matches/${matchId}/cancel`),
-    
-  recordResult: (matchId: string, result: {
+  }) {
+    return api.post('/matches', matchData);
+  },
+  join(matchId: string) {
+    return api.post(`/matches/${matchId}/join`);
+  },
+  leave(matchId: string) {
+    return api.post(`/matches/${matchId}/leave`);
+  },
+  cancel(matchId: string) {
+    return api.post(`/matches/${matchId}/cancel`);
+  },
+  recordResult(matchId: string, result: {
     winners: string[];
     losers: string[];
     score?: string;
-  }) => api.post(`/matches/${matchId}/result`, result),
-  
-  registerTeam: (matchId: string, teammateId: string) =>
-    api.post(`/matches/${matchId}/register-team`, { teammateId }),
+  }) {
+    return api.post(`/matches/${matchId}/result`, result);
+  },
+  registerTeam(matchId: string, teammateId: string) {
+    return api.post(`/matches/${matchId}/register-team`, { teammateId });
+  },
 };
 
 export const stats = {
-  getLeaderboard: () =>
-    api.get('/stats/leaderboard'),
-    
-  getUserStats: (userId: string) =>
-    api.get(`/stats/user/${userId}`),
+  getLeaderboard() {
+    return api.get('/stats/leaderboard');
+  },
+  getUserStats(userId: string) {
+    return api.get(`/stats/user/${userId}`);
+  },
 };
 
 export default api;
