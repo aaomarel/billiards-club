@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "target": "es6",
+      "target": "es2018",
       "module": "commonjs",
       "outDir": "./dist",
       "rootDir": "./src",
@@ -10,8 +10,10 @@
       "forceConsistentCasingInFileNames": true,
       "noImplicitAny": false,
       "moduleResolution": "node",
-      "resolveJsonModule": true
+      "resolveJsonModule": true,
+      "incremental": true,
+      "tsBuildInfoFile": "./dist/.tsbuildinfo"
     },
     "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "dist", "**/*.test.ts"]
   }

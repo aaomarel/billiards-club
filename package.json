@@ -2,8 +2,9 @@
   "name": "billiards-club",
   "version": "1.0.0",
   "scripts": {
-    "build": "cd backend && npm install && npm run build",
-    "start": "cd backend && npm start"
+    "build": "cd backend && npm ci && npm run build",
+    "start": "cd backend && npm start",
+    "postinstall": "cd backend && npm ci"
   },
   "devDependencies": {
     "@types/node": "^22.10.3",
@@ -14,5 +15,8 @@
     "@types/jsonwebtoken": "^9.0.7",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.12.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
