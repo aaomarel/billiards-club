@@ -50,31 +50,34 @@ const cleanupExpiredMatches = async () => {
 };
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://billiards-admin:zm1WKueRgGAwgsJu@cluster0.szqpc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 if (!MONGODB_URI) {
   console.error('MONGODB_URI is not defined in environment variables');
   process.exit(1);
 }
 
-mongoose.connect(MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB Atlas');
-    const PORT = process.env.PORT ?? 5002;
-    
-    // Run cleanup every hour
-    setInterval(cleanupExpiredMatches, 1000 * 60 * 60);
-    
-    // Initial cleanup
-    cleanupExpiredMatches();
-    
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
+mongoose.connect(MONGODB_URI, {
+  retryWrites: true,
+  w: 'majority'
+})
+.then(() => {
+  console.log('MongoDB connected successfully');
+  const PORT = process.env.PORT || 5000;
+  
+  // Run cleanup every hour
+  setInterval(cleanupExpiredMatches, 1000 * 60 * 60);
+  
+  // Initial cleanup
+  cleanupExpiredMatches();
+  
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
+})
+.catch((error) => {
+  console.error('MongoDB connection error:', error);
+  process.exit(1);
+});
 
 export default app;
