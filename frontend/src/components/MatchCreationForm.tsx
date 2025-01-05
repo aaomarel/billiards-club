@@ -121,10 +121,8 @@ const MatchCreationForm: React.FC = () => {
           value={formData.datetime}
           onChange={handleInputChange}
           margin="normal"
-          slotProps={{
-            inputLabel: {
-              shrink: true,
-            }
+          InputLabelProps={{
+            shrink: true
           }}
           required
         />
