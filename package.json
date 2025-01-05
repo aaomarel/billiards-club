@@ -1,4 +1,10 @@
 {
+  "name": "billiards-club",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd backend && npm install && npm run build",
+    "start": "cd backend && npm start"
+  },
   "devDependencies": {
     "@types/node": "^22.10.3",
     "nodemon": "^3.1.9",
@@ -6,6 +12,7 @@
   },
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.7",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.12.0"
   }
 }
