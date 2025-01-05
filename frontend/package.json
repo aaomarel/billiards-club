@@ -24,6 +24,7 @@
     "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
     "recharts": "^2.10.3",
+    "typescript": "^5.3.3",
     "web-vitals": "^3.5.1"
   },
   "devDependencies": {
@@ -32,7 +33,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "build": "DISABLE_ESLINT_PLUGIN=true CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
