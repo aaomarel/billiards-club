@@ -25,6 +25,12 @@ export const auth = {
   register(userData: { name: string; email: string; password: string; studentId: string }) {
     return api.post('/auth/register', userData);
   },
+  getUsers() {
+    return api.get('/auth/users');
+  },
+  updateAdminStatus(userId: string, makeAdmin: boolean) {
+    return api.patch(`/auth/users/${userId}/admin`, { isAdmin: makeAdmin });
+  },
 };
 
 export const matches = {

@@ -8,6 +8,7 @@ import {
   Alert
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import { stats } from '../api';
 
 interface TopPlayer {
   _id: string;
@@ -23,30 +24,19 @@ const Podium: React.FC = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchTopPlayers();
+    fetchLeaderboard();
   }, []);
 
-  const fetchTopPlayers = async () => {
+  const fetchLeaderboard = async () => {
     try {
-      const response = await fetch('http://localhost:5002/api/stats/leaderboard', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch top players');
-      }
-
-      const data = await response.json();
-      // Sort by Elo and take top 3
-      const sortedPlayers = data.sort((a: TopPlayer, b: TopPlayer) => 
+      const response = await stats.getLeaderboard();
+      const sortedPlayers = response.data.sort((a: TopPlayer, b: TopPlayer) => 
         (b.stats.elo || 1200) - (a.stats.elo || 1200)
       ).slice(0, 3);
-      
       setTopPlayers(sortedPlayers);
-    } catch (err: any) {
-      setError(err.message || 'Error loading top players');
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      setError('Failed to load leaderboard');
     } finally {
       setLoading(false);
     }

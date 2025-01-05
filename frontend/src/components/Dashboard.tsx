@@ -38,6 +38,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import Podium from "./Podium";
+import { matches } from '../api';
 
 interface Player {
   _id: string;
@@ -75,12 +76,13 @@ const Dashboard: React.FC = () => {
   >(null);
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [matchList, setMatchList] = useState<Match[]>([]);
   const [filteredMatches, setFilteredMatches] = useState<Match[]>([]);
   const [cancellingMatch, setCancellingMatch] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [joiningMatch, setJoiningMatch] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [leavingMatch, setLeavingMatch] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({
     type: "all",
@@ -90,21 +92,14 @@ const Dashboard: React.FC = () => {
   const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
 
   const fetchMatches = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await fetch("http://localhost:5002/api/matches", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch matches");
-      }
-      const data = await response.json();
-      setMatches(data);
-      setFilteredMatches(data);
-    } catch (err: any) {
-      setError(err.message || "Error loading matches");
+      const response = await matches.getAll();
+      setMatchList(response.data);
+      setFilteredMatches(response.data);
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+      setError('Failed to load matches');
     } finally {
       setLoading(false);
     }
@@ -118,10 +113,10 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     filterMatches();
-  }, [matches, filters]);
+  }, [matchList, filters]);
 
   const filterMatches = () => {
-    let filtered = [...matches];
+    let filtered = [...matchList];
 
     if (filters.type !== "all") {
       filtered = filtered.filter((match) => match.type === filters.type);
@@ -162,92 +157,34 @@ const Dashboard: React.FC = () => {
 
   const handleJoinMatch = async (matchId: string) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Please log in to join matches");
-      }
-
-      setJoiningMatch(matchId);
-      const response = await fetch(
-        `http://localhost:5002/api/matches/${matchId}/join`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to join match");
-      }
-
-      await fetchMatches();
-    } catch (err: any) {
-      setError(err.message || "Error joining match");
-    } finally {
-      setJoiningMatch(null);
+      await matches.join(matchId);
+      fetchMatches(); // Refresh the list
+      setSuccess('Successfully joined match');
+    } catch (error) {
+      console.error('Error joining match:', error);
+      setError('Failed to join match');
     }
   };
 
   const handleLeaveMatch = async (matchId: string) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Please log in to leave matches");
-      }
-
-      setLeavingMatch(matchId);
-      const response = await fetch(
-        `http://localhost:5002/api/matches/${matchId}/leave`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to leave match");
-      }
-
-      await fetchMatches();
-    } catch (err: any) {
-      setError(err.message || "Error leaving match");
-    } finally {
-      setLeavingMatch(null);
+      await matches.leave(matchId);
+      fetchMatches(); // Refresh the list
+      setSuccess('Successfully left match');
+    } catch (error) {
+      console.error('Error leaving match:', error);
+      setError('Failed to leave match');
     }
   };
 
   const handleCancelMatch = async (matchId: string) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Please log in");
-
-      setCancellingMatch(matchId);
-      const response = await fetch(
-        `http://localhost:5002/api/matches/${matchId}/cancel`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to cancel match");
-      }
-
-      await fetchMatches();
-    } catch (err: any) {
-      setError(err.message || "Error cancelling match");
-    } finally {
-      setCancellingMatch(null);
+      await matches.cancel(matchId);
+      fetchMatches(); // Refresh the list
+      setSuccess('Successfully cancelled match');
+    } catch (error) {
+      console.error('Error cancelling match:', error);
+      setError('Failed to cancel match');
     }
   };
 
@@ -257,28 +194,16 @@ const Dashboard: React.FC = () => {
     score?: string;
   }) => {
     try {
-      const response = await fetch(
-        `http://localhost:5002/api/matches/${selectedMatch?._id}/result`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(result),
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to record result");
+      if (selectedMatch?._id) {
+        await matches.recordResult(selectedMatch._id, result);
+      } else {
+        throw new Error('Match ID is undefined');
       }
-
-      await fetchMatches();
-      setResultDialogOpen(false);
-      setSelectedMatch(null);
-    } catch (error: any) {
-      setError(error.message || "Error recording result");
+      fetchMatches(); // Refresh the list
+      setSuccess('Successfully recorded match result');
+    } catch (error) {
+      console.error('Error recording result:', error);
+      setError('Failed to record result');
     }
   };
 

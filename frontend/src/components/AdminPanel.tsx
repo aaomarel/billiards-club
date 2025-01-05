@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import { auth } from '../api';
 
 interface AdminPanelProps {
   user: User | null;
@@ -47,22 +48,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user: currentUser }) => {
   });
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5002/api/auth/users', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      
-      const data = await response.json();
-      setUsers(data);
-    } catch (err) {
-      setError('Failed to load users. Please try again later.');
+      const response = await auth.getUsers();
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError('Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -81,36 +73,22 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user: currentUser }) => {
     setConfirmDialog({ open: true, userId, makeAdmin });
   };
 
-  const updateAdminStatus = async (userId: string, makeAdmin: boolean) => {
+  const handleAdminStatusChange = async (userId: string, makeAdmin: boolean) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5002/api/auth/${makeAdmin ? 'make-admin' : 'remove-admin'}/${userId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update admin status');
-      }
-
-      const updatedUser = await response.json();
-      setUsers(users.map(user => 
-        user._id === userId ? { ...user, isAdmin: updatedUser.isAdmin } : user
-      ));
-      
-      setSuccessMessage(`Successfully ${makeAdmin ? 'granted' : 'removed'} admin privileges for ${updatedUser.name}`);
+      await auth.updateAdminStatus(userId, makeAdmin);
+      fetchUsers(); // Refresh the list
+      setSuccessMessage(`Successfully ${makeAdmin ? 'made user admin' : 'removed admin status'}`);
       setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (err) {
-      setError('Failed to update admin status. Please try again.');
+    } catch (error) {
+      console.error('Error updating admin status:', error);
+      setError('Failed to update admin status');
       setTimeout(() => setError(null), 3000);
     }
   };
 
   const handleConfirmDialog = async (confirmed: boolean) => {
     if (confirmed) {
-      await updateAdminStatus(confirmDialog.userId, confirmDialog.makeAdmin);
+      await handleAdminStatusChange(confirmDialog.userId, confirmDialog.makeAdmin);
     }
     setConfirmDialog({ open: false, userId: '', makeAdmin: false });
   };

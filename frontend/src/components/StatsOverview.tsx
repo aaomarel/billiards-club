@@ -10,6 +10,7 @@ import {
   Select, MenuItem, FormControl, InputLabel,
   SelectChangeEvent
 } from '@mui/material';
+import getUserStats from '../api';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -39,25 +40,17 @@ const StatsOverview = () => {
   const [stats, setStats] = useState<MatchStats | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [timeframe, setTimeframe] = useState('all');
+  const userId = 1; // assuming userId is defined somewhere
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5002/api/users/stats?timeframe=${timeframe}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch stats');
-        }
-
-        const data = await response.json();
-        setStats(data);
-      } catch (err: any) {
-        setError(err.message);
+        const response = await getUserStats(`/stats/${userId}`);
+        setStats(response.data);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setError('Failed to load stats');
       } finally {
         setLoading(false);
       }

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { User } from "../App";
+import { auth } from '../api';
 
 interface AuthFormProps {
   onAuthSuccess: (token: string, userId: string, userData: User) => void;
@@ -43,31 +44,22 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:5002/api/auth/${tab === 0 ? 'login' : 'register'}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
-      }
-
-      onAuthSuccess(data.token, data.userId, {
-        _id: data.userId,
-        name: data.name,
-        email: data.email,
-        studentId: data.studentId,
-        isAdmin: data.isAdmin,
-        role: data.role || 'member',
+      const response = tab === 0 
+        ? await auth.login(formData.email, formData.password)
+        : await auth.register(formData);
+        
+      localStorage.setItem('token', response.data.token);
+      onAuthSuccess(response.data.token, response.data.userId, {
+        _id: response.data.userId,
+        name: response.data.name,
+        email: response.data.email,
+        studentId: response.data.studentId,
+        isAdmin: response.data.isAdmin,
+        role: response.data.role || 'member',
         stats: {
           wins: 0,
           losses: 0,
@@ -77,7 +69,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       });
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      setError(err.response?.data?.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
