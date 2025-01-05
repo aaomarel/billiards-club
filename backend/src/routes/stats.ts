@@ -70,9 +70,14 @@ router.get("/stats", auth, async (req: any, res) => {
     // Calculate basic stats
     let wins = 0;
     let losses = 0;
-    const monthlyStats: { [key: string]: { wins: number; losses: number } } =
-      {};
-    const matchHistory = [];
+    const monthlyStats: { [key: string]: { wins: number; losses: number } } = {};
+    const matchHistory: Array<{
+      date: string;
+      type: "1v1" | "2v2";
+      result: "win" | "loss";
+      opponent: string;
+      score?: string;
+    }> = [];
 
     for (const match of matches) {
       const isWinner = match.result?.winners.some(
