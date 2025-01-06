@@ -27,7 +27,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
-import { formatDistanceToNow } from "date-fns";
+import { format, isFuture } from "date-fns";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
@@ -417,10 +417,10 @@ const Dashboard: React.FC = () => {
 
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Scheduled{" "}
-                      {formatDistanceToNow(new Date(match.datetime), {
-                        addSuffix: true,
-                      })}
+                      {isFuture(new Date(match.datetime)) 
+                        ? `Scheduled for ${format(new Date(match.datetime), 'MMM d, yyyy h:mm a')}`
+                        : `Scheduled at ${format(new Date(match.datetime), 'MMM d, yyyy h:mm a')}`
+                      }
                     </Typography>
                     <Typography variant="body1" sx={{ mt: 1 }}>
                       📍 {match.location}
