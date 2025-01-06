@@ -17,7 +17,7 @@ import {
   EmojiEvents as TrophyIcon,
 } from '@mui/icons-material';
 import { ContentCard } from '../common/StyledComponents';
-import { format } from 'date-fns';
+import { format, isFuture } from 'date-fns';
 
 interface Player {
   _id: string;
@@ -69,6 +69,12 @@ const MatchCard: React.FC<MatchCardProps> = ({
     }
   };
 
+  const getTimeDisplay = () => {
+    const matchDate = new Date(dateTime);
+    const formattedTime = format(matchDate, 'MMM d, yyyy h:mm a');
+    return isFuture(matchDate) ? `Scheduled for ${formattedTime}` : `Scheduled at ${formattedTime}`;
+  };
+
   const getMatchTypeColor = () => {
     return matchType === 'ranked' 
       ? theme.palette.secondary.main 
@@ -76,7 +82,12 @@ const MatchCard: React.FC<MatchCardProps> = ({
   };
 
   return (
-    <ContentCard>
+    <ContentCard
+      sx={{
+        backgroundColor: alpha(getStatusColor(), 0.05),
+        borderColor: alpha(getStatusColor(), 0.2),
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Chip
@@ -113,7 +124,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TimeIcon color="action" />
           <Typography variant="body2">
-            {format(new Date(dateTime), 'MMM d, yyyy h:mm a')}
+            {getTimeDisplay()}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
