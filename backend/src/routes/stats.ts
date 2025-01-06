@@ -155,7 +155,11 @@ router.get("/leaderboard", auth, async (req, res) => {
   try {
     console.log("Fetching users...");
     const users = await User.find({}, "name stats");
-    console.log("Users:", users);
+    if (!users || users.length === 0) {
+      console.log("No users found");
+      return res.json([]);
+    }
+    console.log(`Found ${users.length} users`);
 
     console.log("Fetching matches...");
     const matches = await Match.find({
@@ -164,7 +168,7 @@ router.get("/leaderboard", auth, async (req, res) => {
       .populate("players", "name")
       .populate("result.winners", "name")
       .populate("result.losers", "name");
-    console.log("Matches:", matches);
+    console.log(`Found ${matches.length} matches`);
 
     const playerStats = users.map((user) => {
       const typedUser = user.toObject() as IUser;
@@ -181,7 +185,7 @@ router.get("/leaderboard", auth, async (req, res) => {
 
       userMatches.forEach((match) => {
         const isWinner = match.result?.winners.some(
-          (winner: any) => winner._id.toString() === (user as IUser)._id.toString()
+          (winner: any) => winner._id.toString() === typedUser._id.toString()
         );
 
         if (match.isRanked) {
@@ -191,25 +195,34 @@ router.get("/leaderboard", auth, async (req, res) => {
         }
       });
 
+      const totalRankedGames = rankedWins + rankedLosses;
+      const rankedWinRate = totalRankedGames > 0 ? (rankedWins / totalRankedGames) * 100 : 0;
+
       return {
-        _id: user._id,
-        name: user.name,
+        _id: typedUser._id,
+        name: typedUser.name,
         stats: {
-          wins,
-          losses,
           rankedWins,
           rankedLosses,
-          winRate: wins / (wins + losses) || 0,
-          rankedWinRate: rankedWins / (rankedWins + rankedLosses) || 0,
-          elo: user.stats?.elo || 1200
-        },
+          rankedWinRate: Math.round(rankedWinRate * 100) / 100,
+          elo: typedUser.stats.elo || 1000
+        }
       };
     });
 
-    res.json(playerStats);
+    // Sort by ELO and then by win rate
+    const sortedStats = playerStats.sort((a, b) => {
+      if (b.stats.elo !== a.stats.elo) {
+        return b.stats.elo - a.stats.elo;
+      }
+      return b.stats.rankedWinRate - a.stats.rankedWinRate;
+    });
+
+    console.log("Returning leaderboard data");
+    res.json(sortedStats);
   } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({ message: "Error fetching leaderboard" });
+    console.error("Error in leaderboard:", error);
+    res.status(500).json({ message: "Error fetching leaderboard data" });
   }
 });
 

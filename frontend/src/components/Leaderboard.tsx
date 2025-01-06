@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material';
+import { API_ENDPOINT } from '../config';
 
 interface PlayerStats {
   _id: string;
@@ -36,7 +37,7 @@ const Leaderboard = () => {
   const fetchLeaderboard = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5002/api/stats/leaderboard', {
+      const response = await fetch(`${API_ENDPOINT}/stats/leaderboard`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -49,6 +50,7 @@ const Leaderboard = () => {
       const data = await response.json();
       setPlayers(data);
     } catch (err: any) {
+      console.error('Leaderboard error:', err);
       setError(err.message || 'Error loading leaderboard');
     } finally {
       setLoading(false);
