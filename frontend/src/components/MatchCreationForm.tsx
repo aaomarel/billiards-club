@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Paper, 
   TextField, 
@@ -24,6 +25,8 @@ interface MatchFormData {
 }
 
 const MatchCreationForm: React.FC = () => {
+  const navigate = useNavigate();
+
   const locations = [
     'Pool Room',
     'Game Room',
@@ -87,6 +90,9 @@ const MatchCreationForm: React.FC = () => {
         location: locations[0],
         isRanked: true
       });
+      
+      // Navigate to home page after successful creation
+      navigate('/');
     } catch (err) {
       setError('Failed to create match. Please try again.');
       console.error('Error creating match:', err);
