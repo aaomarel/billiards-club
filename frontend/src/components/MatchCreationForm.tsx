@@ -24,10 +24,17 @@ interface MatchFormData {
 }
 
 const MatchCreationForm: React.FC = () => {
+  const locations = [
+    'Pool Room',
+    'Game Room',
+    'Student Center',
+    'Recreation Center'
+  ];
+
   const [formData, setFormData] = useState<MatchFormData>({
     type: '1v1',
     datetime: '',
-    location: '',
+    location: locations[0],
     isRanked: true
   });
 
@@ -77,7 +84,7 @@ const MatchCreationForm: React.FC = () => {
       setFormData({
         type: '1v1',
         datetime: '',
-        location: '',
+        location: locations[0],
         isRanked: true
       });
     } catch (err) {
@@ -132,15 +139,21 @@ const MatchCreationForm: React.FC = () => {
           required
         />
 
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Location"
-          name="location"
-          value={formData.location}
-          onChange={handleInputChange}
-          required
-        />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Location</InputLabel>
+          <Select
+            name="location"
+            value={formData.location}
+            onChange={handleSelectChange}
+            required
+          >
+            {locations.map((location) => (
+              <MenuItem key={location} value={location}>
+                {location}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <FormControlLabel
           control={
