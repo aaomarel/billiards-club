@@ -28,6 +28,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { format, isFuture } from "date-fns";
+import { toZonedTime } from 'date-fns-tz';
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
@@ -417,10 +418,13 @@ const Dashboard: React.FC = () => {
 
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="body2" color="text.secondary">
-                      {isFuture(new Date(match.datetime)) 
-                        ? `Scheduled for ${format(new Date(match.datetime), 'MMM d, yyyy h:mm a')}`
-                        : `Scheduled at ${format(new Date(match.datetime), 'MMM d, yyyy h:mm a')}`
-                      }
+                      {(() => {
+                        const estTime = toZonedTime(new Date(match.datetime), 'America/New_York');
+                        const formattedTime = format(estTime, 'MMM d, yyyy h:mm a zzz');
+                        return isFuture(estTime) 
+                          ? `Scheduled for ${formattedTime}`
+                          : `Scheduled at ${formattedTime}`;
+                      })()}
                     </Typography>
                     <Typography variant="body1" sx={{ mt: 1 }}>
                       📍 {match.location}

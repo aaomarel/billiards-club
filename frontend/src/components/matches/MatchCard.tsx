@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import { ContentCard } from '../common/StyledComponents';
 import { format, isFuture } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 interface Player {
   _id: string;
@@ -70,9 +71,9 @@ const MatchCard: React.FC<MatchCardProps> = ({
   };
 
   const getTimeDisplay = () => {
-    const matchDate = new Date(dateTime);
-    const formattedTime = format(matchDate, 'MMM d, yyyy h:mm a');
-    return isFuture(matchDate) ? `Scheduled for ${formattedTime}` : `Scheduled at ${formattedTime}`;
+    const estTime = toZonedTime(new Date(dateTime), 'America/New_York');
+    const formattedTime = format(estTime, 'MMM d, yyyy h:mm a zzz');
+    return isFuture(estTime) ? `Scheduled for ${formattedTime}` : `Scheduled at ${formattedTime}`;
   };
 
   const getMatchTypeColor = () => {
