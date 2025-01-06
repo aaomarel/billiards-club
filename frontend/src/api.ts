@@ -9,6 +9,25 @@ const api = axios.create({
   },
 });
 
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      const message = error.response.data?.message || error.response.data?.error || 'An error occurred';
+      return Promise.reject(new Error(message));
+    } else if (error.request) {
+      // The request was made but no response was received
+      return Promise.reject(new Error('No response from server'));
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      return Promise.reject(error);
+    }
+  }
+);
+
 // Add token to requests if it exists
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -19,17 +38,29 @@ api.interceptors.request.use((config) => {
 });
 
 export const auth = {
-  login(email: string, password: string) {
-    return api.post('/auth/login', { email, password });
+  async login(email: string, password: string) {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      return response;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   },
-  register(userData: { name: string; email: string; password: string; studentId: string }) {
-    return api.post('/auth/register', userData);
+  async register(userData: { name: string; email: string; password: string; studentId: string }) {
+    try {
+      const response = await api.post('/auth/register', userData);
+      return response;
+    } catch (error) {
+      console.error('Register error:', error);
+      throw error;
+    }
   },
   getUsers() {
     return api.get('/auth/users');
   },
   updateAdminStatus(userId: string, makeAdmin: boolean) {
-    return api.patch(`/auth/users/${userId}/admin`, { isAdmin: makeAdmin });
+    return api.post(`/auth/${makeAdmin ? 'make-admin' : 'remove-admin'}/${userId}`);
   },
 };
 
@@ -62,7 +93,7 @@ export const matches = {
     return api.post(`/matches/${matchId}/result`, result);
   },
   registerTeam(matchId: string, teammateId: string) {
-    return api.post(`/matches/${matchId}/register-team`, { teammateId });
+    return api.post(`/matches/${matchId}/team`, { teammateId });
   },
 };
 
@@ -71,7 +102,7 @@ export const stats = {
     return api.get('/stats/leaderboard');
   },
   getUserStats(userId: string) {
-    return api.get(`/stats/user/${userId}`);
+    return api.get(`/users/${userId}/stats`);
   },
 };
 

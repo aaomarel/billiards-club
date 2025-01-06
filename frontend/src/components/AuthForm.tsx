@@ -51,25 +51,32 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       const response = tab === 0 
         ? await auth.login(formData.email, formData.password)
         : await auth.register(formData);
-        
-      localStorage.setItem('token', response.data.token);
-      onAuthSuccess(response.data.token, response.data.userId, {
-        _id: response.data.userId,
-        name: response.data.name,
-        email: response.data.email,
-        studentId: response.data.studentId,
-        isAdmin: response.data.isAdmin,
-        role: response.data.role || 'member',
+      
+      const { token, userId, ...userData } = response.data;
+      
+      if (!token || !userId) {
+        throw new Error('Invalid response from server');
+      }
+
+      localStorage.setItem('token', token);
+      onAuthSuccess(token, userId, {
+        _id: userId,
+        name: userData.name,
+        email: userData.email,
+        studentId: userData.studentId,
+        isAdmin: userData.isAdmin,
+        role: userData.role || 'member',
         stats: {
           wins: 0,
           losses: 0,
-          elo: 1000,
+          elo: 1200,
           gamesPlayed: 0
         }
       });
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Authentication failed');
+      console.error('Auth error:', err);
+      setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
