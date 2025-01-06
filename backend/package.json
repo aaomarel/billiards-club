@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "node --max-old-space-size=512 --optimize-for-size --gc-interval=100 -r ts-node/register src/server.ts",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "create-admin": "ts-node src/scripts/create-admin.ts",
@@ -20,6 +20,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.10.6",
     "bcryptjs": "^2.4.3",
+    "compression": "^1.7.5",
     "cors": "^2.8.5",
     "date-fns": "^3.1.1",
     "dotenv": "^16.3.1",
