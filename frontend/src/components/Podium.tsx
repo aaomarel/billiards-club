@@ -84,8 +84,9 @@ const Podium: React.FC = () => {
         display: 'flex', 
         justifyContent: 'center',
         alignItems: 'flex-end',
-        gap: { xs: 1, sm: 2 },
-        height: 150
+        gap: { xs: 2, sm: 4, md: 6 },
+        height: 150,
+        minWidth: { xs: '300px', sm: '400px', md: '500px' }
       }}>
         {/* Second Place */}
         {topPlayers[1] && (
@@ -93,7 +94,7 @@ const Podium: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: { xs: 80, sm: 90 },
+            width: { xs: 80, sm: 100, md: 120 },
             height: '80%'
           }}>
             <EmojiEventsIcon sx={{ 
@@ -124,7 +125,7 @@ const Podium: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: { xs: 90, sm: 100 },
+            width: { xs: 90, sm: 110, md: 130 },
             height: '100%'
           }}>
             <EmojiEventsIcon sx={{ 
@@ -155,7 +156,7 @@ const Podium: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: { xs: 70, sm: 80 },
+            width: { xs: 70, sm: 90, md: 110 },
             height: '70%'
           }}>
             <EmojiEventsIcon sx={{ 
