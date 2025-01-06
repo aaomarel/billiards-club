@@ -71,8 +71,9 @@ const MatchCard: React.FC<MatchCardProps> = ({
   };
 
   const getTimeDisplay = () => {
-    const estTime = toZonedTime(new Date(dateTime), 'America/New_York');
-    const formattedTime = format(estTime, 'MMM d, yyyy h:mm a zzz');
+    const utcDate = new Date(dateTime);
+    const estTime = toZonedTime(utcDate, 'America/New_York');
+    const formattedTime = format(estTime, 'MMM d, yyyy h:mm a z');
     return isFuture(estTime) ? `Scheduled for ${formattedTime}` : `Scheduled at ${formattedTime}`;
   };
 

@@ -419,8 +419,9 @@ const Dashboard: React.FC = () => {
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="body2" color="text.secondary">
                       {(() => {
-                        const estTime = toZonedTime(new Date(match.datetime), 'America/New_York');
-                        const formattedTime = format(estTime, 'MMM d, yyyy h:mm a zzz');
+                        const utcDate = new Date(match.datetime);
+                        const estTime = toZonedTime(utcDate, 'America/New_York');
+                        const formattedTime = format(estTime, 'MMM d, yyyy h:mm a z');
                         return isFuture(estTime) 
                           ? `Scheduled for ${formattedTime}`
                           : `Scheduled at ${formattedTime}`;

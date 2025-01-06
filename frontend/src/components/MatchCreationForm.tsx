@@ -14,6 +14,7 @@ import {
   Box
 } from '@mui/material';
 import { matches } from '../api';
+import { formatInTimeZone } from 'date-fns-tz';
 
 interface MatchFormData {
   type: '1v1' | '2v2';
@@ -63,7 +64,15 @@ const MatchCreationForm: React.FC = () => {
     setSuccess('');
 
     try {
-      await matches.create(formData);
+      // Convert local datetime to UTC before sending to server
+      const localDate = new Date(formData.datetime);
+      const utcDate = formatInTimeZone(localDate, 'America/New_York', "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
+      
+      await matches.create({
+        ...formData,
+        datetime: utcDate
+      });
+
       setSuccess('Match created successfully!');
       setFormData({
         type: '1v1',
@@ -111,45 +120,40 @@ const MatchCreationForm: React.FC = () => {
 
         <TextField
           fullWidth
+          margin="normal"
           label="Date and Time"
           type="datetime-local"
           name="datetime"
           value={formData.datetime}
           onChange={handleInputChange}
-          margin="normal"
           InputLabelProps={{
-            shrink: true
+            shrink: true,
           }}
           required
         />
 
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Location</InputLabel>
-          <Select
-            name="location"
-            value={formData.location}
-            onChange={handleSelectChange}
-            required
-          >
-            <MenuItem value="Table 1">Table 1</MenuItem>
-            <MenuItem value="Table 2">Table 2</MenuItem>
-            <MenuItem value="Table 3">Table 3</MenuItem>
-          </Select>
-        </FormControl>
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Location"
+          name="location"
+          value={formData.location}
+          onChange={handleInputChange}
+          required
+        />
 
-        <Box mt={2}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={formData.isRanked}
-                onChange={handleSwitchChange}
-                name="isRanked"
-                color="primary"
-              />
-            }
-            label="Ranked Match"
-          />
-        </Box>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={formData.isRanked}
+              onChange={handleSwitchChange}
+              name="isRanked"
+              color="primary"
+            />
+          }
+          label="Ranked Match"
+          style={{ marginTop: '16px' }}
+        />
 
         <Button
           type="submit"
