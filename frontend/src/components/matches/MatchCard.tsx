@@ -19,6 +19,7 @@ import {
 import { ContentCard } from '../common/StyledComponents';
 import { format, isFuture } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
+import { MatchStatus } from '../../types';
 
 interface Player {
   _id: string;
@@ -34,12 +35,12 @@ interface MatchCardProps {
   dateTime: string;
   location: string;
   gameType: '1v1' | '2v2';
-  matchType: 'casual' | 'ranked';
+  matchType: 'ranked' | 'casual';
   players: Player[];
   maxPlayers: number;
+  status: MatchStatus;
   onJoin?: () => void;
   onLeave?: () => void;
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 }
 
 const MatchCard: React.FC<MatchCardProps> = ({
@@ -57,9 +58,9 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
   const getStatusColor = () => {
     switch (status) {
-      case 'scheduled':
+      case 'pending':
         return theme.palette.info.main;
-      case 'in_progress':
+      case 'ongoing':
         return theme.palette.success.main;
       case 'completed':
         return theme.palette.tertiary.main;
@@ -170,7 +171,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
         </Box>
       </Box>
 
-      {status === 'scheduled' && (
+      {status === 'pending' && (
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'flex-end', 

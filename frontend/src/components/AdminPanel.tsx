@@ -172,14 +172,24 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user: currentUser }) => {
       </Paper>
 
       <Dialog open={confirmDialog.open} onClose={() => handleConfirmDialog(false)}>
-        <DialogTitle>Confirm Admin Privilege Removal</DialogTitle>
+        <DialogTitle>
+          {confirmDialog.makeAdmin 
+            ? "Confirm Admin Privilege Grant"
+            : "Confirm Admin Privilege Removal"
+          }
+        </DialogTitle>
         <DialogContent>
-          Are you sure you want to remove admin privileges from this user?
+          <Typography>
+            {confirmDialog.makeAdmin 
+              ? "Are you sure you want to grant admin privileges to this user?"
+              : "Are you sure you want to remove admin privileges from this user?"
+            }
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => handleConfirmDialog(false)}>Cancel</Button>
           <Button onClick={() => handleConfirmDialog(true)} color="error">
-            Remove Admin
+            {confirmDialog.makeAdmin ? "Grant Admin" : "Remove Admin"}
           </Button>
         </DialogActions>
       </Dialog>

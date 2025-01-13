@@ -54,15 +54,6 @@ const Podium: React.FC = () => {
     return <Alert severity="error">{error}</Alert>;
   }
 
-  const getTrophyColor = (index: number) => {
-    switch(index) {
-      case 0: return '#FFD700'; // Gold
-      case 1: return '#C0C0C0'; // Silver
-      case 2: return '#CD7F32'; // Bronze
-      default: return '#000000';
-    }
-  };
-
   return (
     <Paper 
       elevation={3}
@@ -82,104 +73,58 @@ const Podium: React.FC = () => {
 
       <Box sx={{ 
         display: 'flex', 
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-        gap: { xs: 2, sm: 4, md: 6 },
-        height: 150,
-        minWidth: { xs: '300px', sm: '400px', md: '500px' }
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 3,
+        p: 2,
       }}>
-        {/* Second Place */}
-        {topPlayers[1] && (
-          <Box sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: { xs: 80, sm: 100, md: 120 },
-            height: '80%'
-          }}>
-            <EmojiEventsIcon sx={{ 
-              fontSize: { xs: 30, sm: 35 }, 
-              color: getTrophyColor(1),
-              mb: 0.5
-            }} />
-            <Avatar sx={{ 
-              width: { xs: 45, sm: 50 }, 
-              height: { xs: 45, sm: 50 },
-              mb: 0.5,
-              border: `2px solid ${getTrophyColor(1)}`
-            }}>
-              {topPlayers[1].name[0]}
-            </Avatar>
-            <Typography variant="body2" align="center" noWrap>
-              {topPlayers[1].name}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {topPlayers[1].stats.elo || 1200}
-            </Typography>
+        {topPlayers.map((player, index) => (
+          <Box
+            key={player._id}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              mb: 3,
+              p: 2,
+              borderRadius: 1,
+              bgcolor: index === 0 ? 'rgba(255, 215, 0, 0.1)' : 'transparent',
+            }}
+          >
+            {index === 0 ? (
+              <EmojiEventsIcon
+                sx={{
+                  fontSize: 32,
+                  color: 'warning.main',
+                }}
+              />
+            ) : (
+              <Typography
+                variant="h5"
+                sx={{
+                  width: 32,
+                  textAlign: 'center',
+                  color: 'text.secondary',
+                  fontWeight: 500,
+                }}
+              >
+                {index + 1}
+              </Typography>
+            )}
+            
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                {player.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: 'text.secondary' }}
+              >
+                Rating: {player.stats.elo || 1200}
+              </Typography>
+            </Box>
           </Box>
-        )}
-
-        {/* First Place */}
-        {topPlayers[0] && (
-          <Box sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: { xs: 90, sm: 110, md: 130 },
-            height: '100%'
-          }}>
-            <EmojiEventsIcon sx={{ 
-              fontSize: { xs: 35, sm: 40 }, 
-              color: getTrophyColor(0),
-              mb: 0.5
-            }} />
-            <Avatar sx={{ 
-              width: { xs: 55, sm: 60 }, 
-              height: { xs: 55, sm: 60 },
-              mb: 0.5,
-              border: `3px solid ${getTrophyColor(0)}`
-            }}>
-              {topPlayers[0].name[0]}
-            </Avatar>
-            <Typography variant="body1" align="center" noWrap>
-              {topPlayers[0].name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight="bold">
-              {topPlayers[0].stats.elo || 1200}
-            </Typography>
-          </Box>
-        )}
-
-        {/* Third Place */}
-        {topPlayers[2] && (
-          <Box sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: { xs: 70, sm: 90, md: 110 },
-            height: '70%'
-          }}>
-            <EmojiEventsIcon sx={{ 
-              fontSize: { xs: 25, sm: 30 }, 
-              color: getTrophyColor(2),
-              mb: 0.5
-            }} />
-            <Avatar sx={{ 
-              width: { xs: 40, sm: 45 }, 
-              height: { xs: 40, sm: 45 },
-              mb: 0.5,
-              border: `2px solid ${getTrophyColor(2)}`
-            }}>
-              {topPlayers[2].name[0]}
-            </Avatar>
-            <Typography variant="caption" align="center" noWrap>
-              {topPlayers[2].name}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {topPlayers[2].stats.elo || 1200}
-            </Typography>
-          </Box>
-        )}
+        ))}
       </Box>
     </Paper>
   );

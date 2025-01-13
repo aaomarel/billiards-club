@@ -87,8 +87,6 @@ const Leaderboard = () => {
               <TableCell>Player</TableCell>
               <TableCell align="right">Elo Rating</TableCell>
               <TableCell align="right">Wins</TableCell>
-              <TableCell align="right">Losses</TableCell>
-              <TableCell align="right">Win Rate</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -105,21 +103,8 @@ const Leaderboard = () => {
               >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{player.name}</TableCell>
-                <TableCell align="right" sx={{ 
-                  color: theme => {
-                    const elo = player.stats.elo || 1200;
-                    if (elo >= 1500) return theme.palette.success.main;
-                    if (elo >= 1300) return theme.palette.info.main;
-                    return 'inherit';
-                  }
-                }}>
-                  {player.stats.elo || 1200}
-                </TableCell>
+                <TableCell align="right">{player.stats.elo || 1200}</TableCell>
                 <TableCell align="right">{player.stats.rankedWins}</TableCell>
-                <TableCell align="right">{player.stats.rankedLosses}</TableCell>
-                <TableCell align="right">
-                  {(player.stats.rankedWinRate * 100).toFixed(1)}%
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>

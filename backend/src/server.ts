@@ -7,10 +7,21 @@ import matchRoutes from './routes/matches';
 import statsRoutes from './routes/stats';
 import { Match } from './models/Match';
 import compression from 'compression';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
 const app = express();
+
+// Rate limiting middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+// Apply rate limiting to all routes
+app.use(limiter);
 
 // CORS configuration
 const corsOptions = {
