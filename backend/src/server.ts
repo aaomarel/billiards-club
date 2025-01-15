@@ -90,12 +90,12 @@ mongoose.connect(MONGODB_URI, {
 })
 .then(() => {
   console.log('Connected to MongoDB');
-  const PORT = process.env.PORT || 5000;
+  const PORT = parseInt(process.env.PORT || '5002', 10);
   
   // Initial cleanup
   cleanupExpiredMatches();
   
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });
 })
