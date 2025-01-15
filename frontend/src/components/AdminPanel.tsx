@@ -110,6 +110,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user: currentUser }) => {
     );
   };
 
+  // Only allow access to admins and head admins
+  if (!currentUser?.isAdmin && currentUser?.role !== 'head_admin') {
+    return (
+      <Typography>You do not have permission to access the admin panel.</Typography>
+    );
+  }
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">

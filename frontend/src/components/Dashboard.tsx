@@ -48,12 +48,23 @@ const Dashboard: React.FC = () => {
       const playerData = await Promise.all(
         Array.from(playerIds).map(async id => {
           try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/users/${id}`);
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch player data: ${response.statusText}`);
+            }
             const data = await response.json();
             return data;
           } catch (err) {
             console.error(`Failed to fetch player data for ID ${id}:`, err);
-            return { _id: id, name: 'Unknown Player' };
+            // Return a more informative placeholder
+            return { 
+              _id: id, 
+              name: 'Player',
+              stats: {
+                elo: 1200,
+                gamesPlayed: 0
+              }
+            };
           }
         })
       );
@@ -202,12 +213,43 @@ const Dashboard: React.FC = () => {
                     location={match.location}
                     gameType={match.type}
                     matchType={match.isRanked ? 'ranked' : 'casual'}
-                    players={match.players.map(id => playerMap[id] || { _id: id, name: 'Loading...' })}
+                    players={match.players.map(id => {
+                      const player = playerMap[id];
+                      return player || { 
+                        _id: id, 
+                        name: 'Player',
+                        stats: {
+                          elo: 1200,
+                          gamesPlayed: 0
+                        }
+                      };
+                    })}
                     maxPlayers={match.type === '1v1' ? 2 : 4}
                     status={match.status}
                     createdBy={match.createdBy}
-                    onJoin={() => matches.join(match._id)}
-                    onLeave={() => matches.leave(match._id)}
+                    currentUserId={user?._id}
+                    isAdmin={user?.isAdmin || user?.role === 'head_admin'}
+                    onJoin={() => {
+                      matches.join(match._id).then(() => {
+                        fetchMatches();
+                      }).catch(err => {
+                        console.error('Failed to join match:', err);
+                      });
+                    }}
+                    onLeave={() => {
+                      matches.leave(match._id).then(() => {
+                        fetchMatches();
+                      }).catch(err => {
+                        console.error('Failed to leave match:', err);
+                      });
+                    }}
+                    onCancel={() => {
+                      matches.cancel(match._id).then(() => {
+                        fetchMatches();
+                      }).catch(err => {
+                        console.error('Failed to cancel match:', err);
+                      });
+                    }}
                   />
                 </Grid>
               ))}
