@@ -31,11 +31,42 @@ const Dashboard: React.FC = () => {
     isRanked: "all",
   });
   const [user, setUser] = useState<User | null>(null);
+  const [playerMap, setPlayerMap] = useState<Record<string, User>>({});
 
   const fetchMatches = async () => {
     try {
       const response = await matches.getAll();
       setMatchList(response.data);
+      
+      // Collect all unique player IDs
+      const playerIds = new Set<string>();
+      response.data.forEach((match: Match) => {
+        match.players.forEach(id => playerIds.add(id));
+      });
+
+      // Fetch player data for all IDs
+      const playerData = await Promise.all(
+        Array.from(playerIds).map(async id => {
+          try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/users/${id}`);
+            const data = await response.json();
+            return data;
+          } catch (err) {
+            console.error(`Failed to fetch player data for ID ${id}:`, err);
+            return { _id: id, name: 'Unknown Player' };
+          }
+        })
+      );
+
+      // Create a map of player data
+      const newPlayerMap: Record<string, User> = {};
+      playerData.forEach(player => {
+        if (player) {
+          newPlayerMap[player._id] = player;
+        }
+      });
+      setPlayerMap(newPlayerMap);
+      
       setError("");
     } catch (err) {
       setError("Failed to fetch matches");
@@ -171,7 +202,7 @@ const Dashboard: React.FC = () => {
                     location={match.location}
                     gameType={match.type}
                     matchType={match.isRanked ? 'ranked' : 'casual'}
-                    players={match.players.map(id => ({ _id: id, name: id }))}
+                    players={match.players.map(id => playerMap[id] || { _id: id, name: 'Loading...' })}
                     maxPlayers={match.type === '1v1' ? 2 : 4}
                     status={match.status}
                     onJoin={() => matches.join(match._id)}

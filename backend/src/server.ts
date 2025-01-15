@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import matchRoutes from './routes/matches';
 import statsRoutes from './routes/stats';
+import userRoutes from './routes/users';
 import { Match } from './models/Match';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
@@ -43,6 +44,7 @@ app.use(compression());
 app.use('/api/auth', authRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
