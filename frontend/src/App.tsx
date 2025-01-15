@@ -43,12 +43,16 @@ export interface User {
   studentId: string;
   isAdmin: boolean;
   role: 'member' | 'admin' | 'head_admin';
-  stats: {
+  stats?: {
     wins: number;
     losses: number;
     elo: number;
     gamesPlayed: number;
   };
+  wins?: number;
+  losses?: number;
+  elo?: number;
+  gamesPlayed?: number;
 }
 
 function App() {

@@ -52,24 +52,21 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         ? await auth.login(formData.email, formData.password)
         : await auth.register(formData);
       
-      console.log('Server response:', response.data); // Debug log
+      console.log('Server response:', response.data);
       
-      const { token, userId, user } = response.data;
-      
-      // Check the structure of what we received
-      console.log('Extracted data:', { token, userId, user });
+      const { token, userId } = response.data;
       
       if (!token || !userId) {
         throw new Error('Invalid response from server');
       }
 
-      // If we don't have a user object but have other user data, construct it
-      const userData = user || {
+      // Construct user data from response
+      const userData = {
         _id: userId,
         name: response.data.name,
         email: response.data.email,
         studentId: response.data.studentId,
-        isAdmin: response.data.isAdmin,
+        isAdmin: response.data.isAdmin || false,
         role: response.data.role || 'member',
         stats: response.data.stats || {
           wins: 0,
@@ -84,7 +81,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
       navigate('/');
     } catch (err: any) {
       console.error('Auth error:', err);
-      console.error('Full error object:', err); // Debug log
+      console.error('Full error object:', err);
       setError(err.message || 'Authentication failed');
       // Clear any partial data
       localStorage.removeItem('token');
