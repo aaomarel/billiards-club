@@ -65,9 +65,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user: currentUser }) => {
   }, []);
 
   const handleAdminToggle = (userId: string, makeAdmin: boolean) => {
-    // Only head admin can modify admin privileges
-    if (currentUser?.role !== 'head_admin') {
-      setError('Only head admin can modify admin privileges');
+    // Only admins can modify admin privileges
+    if (!currentUser?.isAdmin) {
+      setError('Only admins can modify admin privileges');
       return;
     }
     setConfirmDialog({ open: true, userId, makeAdmin });
@@ -94,8 +94,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user: currentUser }) => {
   };
 
   const renderAdminControls = (user: User) => {
-    // Don't show toggle for head admin or for non-head admins
-    if (user.role === 'head_admin' || currentUser?.role !== 'head_admin') {
+    // Don't show toggle for head admin or for non-admins
+    if (user.role === 'head_admin' || !currentUser?.isAdmin) {
       return null;
     }
 

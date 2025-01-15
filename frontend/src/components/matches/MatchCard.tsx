@@ -15,6 +15,7 @@ import {
   ExitToApp as LeaveIcon,
   Group as TeamIcon,
   EmojiEvents as TrophyIcon,
+  Cancel as CancelIcon,
 } from '@mui/icons-material';
 import { ContentCard } from '../common/StyledComponents';
 import { format, isFuture } from 'date-fns';
@@ -39,8 +40,12 @@ interface MatchCardProps {
   players: Player[];
   maxPlayers: number;
   status: MatchStatus;
+  createdBy: string;
+  currentUserId?: string;
+  isAdmin?: boolean;
   onJoin?: () => void;
   onLeave?: () => void;
+  onCancel?: () => void;
 }
 
 const MatchCard: React.FC<MatchCardProps> = ({
@@ -51,8 +56,12 @@ const MatchCard: React.FC<MatchCardProps> = ({
   players,
   maxPlayers,
   status,
+  createdBy,
+  currentUserId,
+  isAdmin,
   onJoin,
   onLeave,
+  onCancel,
 }) => {
   const theme = useTheme();
 
@@ -146,8 +155,8 @@ const MatchCard: React.FC<MatchCardProps> = ({
               key={player._id}
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <span>{player.name}</span>
-                  {matchType === 'ranked' && (
+                  <span>{player.name || 'Unknown player'}</span>
+                  {matchType === 'ranked' && player.stats && (
                     <Typography
                       component="span"
                       sx={{
@@ -156,7 +165,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
                         fontWeight: 600,
                       }}
                     >
-                      ({player.stats?.elo || 1200})
+                      ({player.stats.elo || 1200})
                     </Typography>
                   )}
                 </Box>
@@ -187,7 +196,10 @@ const MatchCard: React.FC<MatchCardProps> = ({
             },
           },
         }}>
-          {players.length < maxPlayers && onJoin && (
+          {/* Show Join button if user hasn't joined and there's space */}
+          {currentUserId && 
+           !players.some(p => p._id === currentUserId) && 
+           players.length < maxPlayers && (
             <Tooltip title="Join Match">
               <IconButton
                 onClick={onJoin}
@@ -202,10 +214,32 @@ const MatchCard: React.FC<MatchCardProps> = ({
               </IconButton>
             </Tooltip>
           )}
-          {onLeave && (
+
+          {/* Show Leave button if user has joined and is not the creator */}
+          {currentUserId && 
+           players.some(p => p._id === currentUserId) && 
+           createdBy !== currentUserId && (
             <Tooltip title="Leave Match">
               <IconButton
                 onClick={onLeave}
+                sx={{
+                  color: theme.palette.warning.main,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.warning.main, 0.1),
+                  },
+                }}
+              >
+                <LeaveIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {/* Show Cancel button if user is creator or admin */}
+          {currentUserId && 
+           (createdBy === currentUserId || isAdmin) && (
+            <Tooltip title="Cancel Match">
+              <IconButton
+                onClick={onCancel}
                 sx={{
                   color: theme.palette.error.main,
                   '&:hover': {
@@ -213,7 +247,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
                   },
                 }}
               >
-                <LeaveIcon />
+                <CancelIcon />
               </IconButton>
             </Tooltip>
           )}

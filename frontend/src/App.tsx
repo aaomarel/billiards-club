@@ -72,25 +72,24 @@ function App() {
         });
         if (response.ok) {
           const userData = await response.json();
-          // Validate user data before setting
+          // Only update if we get valid data
           if (userData && userData._id && userData.name) {
             setUser(userData);
             localStorage.setItem("user", JSON.stringify(userData));
             setIsAuthenticated(true);
-          } else {
-            console.error("Invalid user data received from API");
-            handleLogout();
           }
+          // Don't log out if data is invalid, just keep existing data
         } else {
-          // Handle unauthorized or other errors
+          // Only log out on 401 unauthorized
           if (response.status === 401) {
             handleLogout();
           }
+          // For other errors, keep existing session
           console.error("Error fetching user data:", response.status);
         }
       } catch (error) {
+        // Don't log out on network errors, just log them
         console.error("Error fetching user data:", error);
-        handleLogout();
       }
     }
   };

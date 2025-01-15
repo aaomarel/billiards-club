@@ -205,6 +205,7 @@ const Dashboard: React.FC = () => {
                     players={match.players.map(id => playerMap[id] || { _id: id, name: 'Loading...' })}
                     maxPlayers={match.type === '1v1' ? 2 : 4}
                     status={match.status}
+                    createdBy={match.createdBy}
                     onJoin={() => matches.join(match._id)}
                     onLeave={() => matches.leave(match._id)}
                   />
