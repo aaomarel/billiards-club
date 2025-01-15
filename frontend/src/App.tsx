@@ -49,10 +49,6 @@ export interface User {
     elo: number;
     gamesPlayed: number;
   };
-  wins?: number;
-  losses?: number;
-  elo?: number;
-  gamesPlayed?: number;
 }
 
 function App() {

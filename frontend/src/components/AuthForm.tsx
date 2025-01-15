@@ -68,11 +68,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ onAuthSuccess }) => {
         studentId: response.data.studentId,
         isAdmin: response.data.isAdmin || false,
         role: response.data.role || 'member',
-        stats: response.data.stats || {
-          wins: 0,
-          losses: 0,
-          elo: 1200,
-          gamesPlayed: 0
+        stats: {
+          wins: response.data.stats?.wins || 0,
+          losses: response.data.stats?.losses || 0,
+          elo: response.data.stats?.elo || 1200,
+          gamesPlayed: response.data.stats?.gamesPlayed || 0
         }
       };
 
