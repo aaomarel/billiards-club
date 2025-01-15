@@ -28,12 +28,16 @@ app.use(limiter);
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://localhost:5173',
     'https://spartanbilliards.netlify.app',
-    process.env.CORS_ORIGIN
-  ].filter((origin): origin is string => Boolean(origin)),
+    'https://billiards-club-2tbe.onrender.com'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin'],
+  exposedHeaders: ['Access-Control-Allow-Origin'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
