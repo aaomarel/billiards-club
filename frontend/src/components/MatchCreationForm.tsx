@@ -28,10 +28,8 @@ const MatchCreationForm: React.FC = () => {
   const navigate = useNavigate();
 
   const locations = [
-    'Pool Room',
-    'Game Room',
-    'Student Center',
-    'Recreation Center'
+    'Pool Room EUC',
+    'Kaplan Center Pool Table',
   ];
 
   const [formData, setFormData] = useState<MatchFormData>({
