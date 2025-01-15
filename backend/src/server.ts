@@ -90,7 +90,7 @@ mongoose.connect(MONGODB_URI, {
 })
 .then(() => {
   console.log('Connected to MongoDB');
-  const PORT = parseInt(process.env.PORT || '5002', 10);
+  const PORT = parseInt(process.env.PORT || '10000', 10);
   
   // Initial cleanup
   cleanupExpiredMatches();
