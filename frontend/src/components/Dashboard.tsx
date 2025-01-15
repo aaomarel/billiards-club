@@ -19,6 +19,7 @@ import { Match } from "../types";
 import MatchCard from "./matches/MatchCard";
 import Podium from "./Podium";
 import { PageContainer } from "./common/StyledComponents";
+import { User } from "../App";  // Import the User interface
 
 const Dashboard: React.FC = () => {
   const [matchList, setMatchList] = useState<Match[]>([]);
@@ -29,7 +30,7 @@ const Dashboard: React.FC = () => {
     status: "all",
     isRanked: "all",
   });
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const fetchMatches = async () => {
     try {
@@ -50,7 +51,15 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
-      setUser(JSON.parse(userStr));
+      try {
+        const userData = JSON.parse(userStr);
+        // Validate the user data before setting it
+        if (userData && userData._id && userData.name) {
+          setUser(userData);
+        }
+      } catch (err) {
+        console.error('Error parsing user data:', err);
+      }
     }
   }, []);
 
