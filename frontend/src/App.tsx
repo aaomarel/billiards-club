@@ -72,11 +72,25 @@ function App() {
         });
         if (response.ok) {
           const userData = await response.json();
-          setUser(userData);
-          localStorage.setItem("user", JSON.stringify(userData));
+          // Validate user data before setting
+          if (userData && userData._id && userData.name) {
+            setUser(userData);
+            localStorage.setItem("user", JSON.stringify(userData));
+            setIsAuthenticated(true);
+          } else {
+            console.error("Invalid user data received from API");
+            handleLogout();
+          }
+        } else {
+          // Handle unauthorized or other errors
+          if (response.status === 401) {
+            handleLogout();
+          }
+          console.error("Error fetching user data:", response.status);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+        handleLogout();
       }
     }
   };
@@ -100,11 +114,32 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-    if (token && storedUser) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(storedUser));
-      // Fetch latest user data
-      fetchUserData();
+    
+    // Clear any potentially invalid data
+    if (token) {
+      try {
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          // Only set the user if it has the required fields
+          if (parsedUser && parsedUser._id && parsedUser.name) {
+            setIsAuthenticated(true);
+            setUser(parsedUser);
+          } else {
+            // Invalid user data, clear storage
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("user");
+          }
+        }
+        // Fetch latest user data
+        fetchUserData();
+      } catch (error) {
+        console.error("Error parsing stored user:", error);
+        // Clear invalid data
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("user");
+      }
     }
 
     // Fetch user data every minute to keep stats up to date
